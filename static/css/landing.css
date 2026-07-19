@@ -1,0 +1,198 @@
+/* ------------------------------------------------------------------ */
+/* Hero (landing page)                                                 */
+/* ------------------------------------------------------------------ */
+
+.hero {
+    padding: 4.5rem 2rem 4rem;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #e5f5ec;
+    color: #2f9e64;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.55rem 1.25rem;
+    border-radius: 999px;
+    margin-bottom: 1.75rem;
+}
+
+.hero-badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #2f9e64;
+}
+
+.hero-title {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+}
+
+.hero-title .hero-title-accent {
+    display: block;
+    color: #4fa87f;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--ink-muted);
+    line-height: 1.6;
+    max-width: 560px;
+    margin: 0 auto 2.25rem;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3.5rem;
+}
+
+.hero-btn {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.85rem 1.75rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.hero-btn:hover {
+    background: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero visual (dashboard summary mock)                                */
+/* ------------------------------------------------------------------ */
+
+.hero-visual {
+    width: 100%;
+}
+
+.browser-mock {
+    background: var(--paper-warm);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    width: 100%;
+}
+
+.browser-dots {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+}
+
+.browser-dots .dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+}
+
+.dot-red { background: #e8877c; }
+.dot-yellow { background: #ecc379; }
+.dot-green { background: #9bd6b3; }
+
+.stat-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    text-align: left;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+}
+
+.stat-value {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--ink);
+}
+
+.stat-change {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.stat-change.negative { color: var(--danger); }
+.stat-change.positive { color: #2f9e64; }
+.stat-change.neutral { color: var(--ink-faint); }
+
+.bar-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.bar-row {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+.bar-label {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    text-align: left;
+}
+
+.bar-track {
+    height: 9px;
+    background: var(--border-soft);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.bar-food { background: #e8973a; }
+.bar-travel { background: #4f7fd6; }
+.bar-bills { background: #8b6fd6; }
+
+@media (max-width: 640px) {
+    .stat-cards { grid-template-columns: 1fr; }
+    .hero-actions { flex-direction: column; }
+    .hero-btn { width: 100%; text-align: center; }
+}
