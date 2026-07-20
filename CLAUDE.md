@@ -86,7 +86,7 @@ pytest -s
 | `GET /login` | Implemented — renders `login.html` |
 | `GET /terms` | Implemented — renders `terms.html` |
 | `GET /privacy` | Implemented — renders `privacy.html` |
-| `GET /logout` | Stub — Step 3 |
+| `GET /logout` | Implemented — clears session, redirects to landing |
 | `GET /profile` | Stub — Step 4 |
 | `GET /expenses/add` | Stub — Step 7 |
 | `GET /expenses/<id>/edit` | Stub — Step 8 |
