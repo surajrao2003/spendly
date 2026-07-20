@@ -161,3 +161,32 @@ def seed_db():
         db.commit()
     finally:
         db.close()
+
+
+# ------------------------------------------------------------------ #
+# User queries                                                         #
+# ------------------------------------------------------------------ #
+def get_user_by_email(email):
+    """Return the user row matching `email`, or None if no such user exists."""
+    db = get_db()
+    try:
+        return db.execute(
+            "SELECT id, name, email, password_hash FROM users WHERE email = ?",
+            (email,),
+        ).fetchone()
+    finally:
+        db.close()
+
+
+def create_user(name, email, password_hash):
+    """Insert a new user and return its new id."""
+    db = get_db()
+    try:
+        cursor = db.execute(
+            "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+            (name, email, password_hash),
+        )
+        db.commit()
+        return cursor.lastrowid
+    finally:
+        db.close()
