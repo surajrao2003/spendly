@@ -93,6 +93,14 @@ def login():
     return render_template("login.html")
 
 
+@app.route("/analytics")
+def analytics():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    return render_template("analytics.html")
+
+
 @app.route("/logout")
 def logout():
     session.pop("user_id", None)
