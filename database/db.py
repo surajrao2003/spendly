@@ -202,24 +202,3 @@ def create_user(name, email, password_hash):
         return cursor.lastrowid
     finally:
         db.close()
-
-
-# ------------------------------------------------------------------ #
-# Expense queries                                                      #
-# ------------------------------------------------------------------ #
-def get_recent_expenses_by_user(user_id, limit=5):
-    """Return `user_id`'s most recent expenses, newest first, capped at `limit`."""
-    db = get_db()
-    try:
-        return db.execute(
-            """
-            SELECT id, amount, category, date, description
-            FROM expenses
-            WHERE user_id = ?
-            ORDER BY date DESC, id DESC
-            LIMIT ?
-            """,
-            (user_id, limit),
-        ).fetchall()
-    finally:
-        db.close()

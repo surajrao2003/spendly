@@ -22,6 +22,25 @@
             </dl>
         </div>
 
+        <div class="profile-card stats-card">
+            <h2 class="stats-title">Summary</h2>
+
+            <dl class="stats-grid">
+                <div class="stats-item">
+                    <dt>Total Spent</dt>
+                    <dd>₹{{ "%.2f"|format(stats["total_spent"]) }}</dd>
+                </div>
+                <div class="stats-item">
+                    <dt>Transactions</dt>
+                    <dd>{{ stats["transaction_count"] }}</dd>
+                </div>
+                <div class="stats-item">
+                    <dt>Top Category</dt>
+                    <dd>{{ stats["top_category"] }}</dd>
+                </div>
+            </dl>
+        </div>
+
         <div class="profile-card transactions-card">
             <h2 class="transactions-title">Recent Transactions</h2>
 
@@ -40,6 +59,29 @@
             </ul>
             {% else %}
             <p class="tx-empty">No transactions yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="profile-card breakdown-card">
+            <h2 class="breakdown-title">Category Breakdown</h2>
+
+            {% if breakdown %}
+            <ul class="breakdown-list">
+                {% for item in breakdown %}
+                <li class="breakdown-row">
+                    <div class="breakdown-info">
+                        <span class="breakdown-name">{{ item["name"] }}</span>
+                        <span class="breakdown-amount">₹{{ "%.2f"|format(item["amount"]) }}</span>
+                    </div>
+                    <div class="breakdown-bar">
+                        <div class="breakdown-bar-fill" style="width: {{ item['pct'] }}%;"></div>
+                    </div>
+                    <span class="breakdown-pct">{{ item["pct"] }}%</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="breakdown-empty">No spending yet.</p>
             {% endif %}
         </div>
 
