@@ -1,0 +1,96 @@
+/* ------------------------------------------------------------------ */
+/* Profile page — date filter bar                                     */
+/* ------------------------------------------------------------------ */
+
+.filter-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+}
+
+.filter-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-preset {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+    background: var(--paper);
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.filter-preset:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.filter-preset-active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--paper-card);
+}
+
+.filter-preset-active:hover {
+    color: var(--paper-card);
+}
+
+.filter-custom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
+}
+
+.filter-custom-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.filter-custom-field label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+}
+
+.filter-custom-field input[type="date"] {
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: var(--paper);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.filter-custom-field input[type="date"]:focus {
+    border-color: var(--accent);
+}
+
+.filter-apply {
+    padding: 0.55rem 1.25rem;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.filter-apply:hover {
+    background: var(--accent);
+}
