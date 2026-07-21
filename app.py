@@ -1,6 +1,7 @@
 import os
+from datetime import date, datetime, timedelta
 
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from database.db import (
@@ -108,6 +109,44 @@ def privacy():
     return render_template("privacy.html")
 
 
+def _parse_iso_date(value):
+    """Return `value` unchanged if it's a well-formed ISO `YYYY-MM-DD` date, else None."""
+    if not value:
+        return None
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+    except ValueError:
+        return None
+    return value
+
+
+def _date_presets():
+    """Return the (start, end) ISO date pairs for the profile page's quick-select presets."""
+    today = date.today()
+    return {
+        "this_month": (today.replace(day=1).isoformat(), today.isoformat()),
+        "last_3_months": ((today - timedelta(days=90)).isoformat(), today.isoformat()),
+        "last_6_months": ((today - timedelta(days=180)).isoformat(), today.isoformat()),
+    }
+
+
+def _resolve_date_filter(args):
+    """Parse and validate `date_from`/`date_to` from request args.
+
+    Falls back to `(None, None)` — no filter — if either value is missing or
+    malformed, or if `date_from` is after `date_to` (flashing an error in the
+    latter case).
+    """
+    date_from = _parse_iso_date(args.get("date_from"))
+    date_to = _parse_iso_date(args.get("date_to"))
+
+    if date_from and date_to and date_from > date_to:
+        flash("Start date must be before end date.")
+        return None, None
+
+    return date_from, date_to
+
+
 @app.route("/profile")
 def profile():
     if "user_id" not in session:
@@ -118,14 +157,16 @@ def profile():
         session.clear()
         return redirect(url_for("login"))
 
+    date_from, date_to = _resolve_date_filter(request.args)
+
     # --- transaction history (Subagent 1) ---
-    expenses = get_recent_transactions(user["id"])
+    expenses = get_recent_transactions(user["id"], date_from=date_from, date_to=date_to)
 
     # --- summary stats (Subagent 2) ---
-    stats = get_summary_stats(user["id"])
+    stats = get_summary_stats(user["id"], date_from=date_from, date_to=date_to)
 
     # --- category breakdown (Subagent 3) ---
-    breakdown = get_category_breakdown(user["id"])
+    breakdown = get_category_breakdown(user["id"], date_from=date_from, date_to=date_to)
 
     return render_template(
         "profile.html",
@@ -133,6 +174,9 @@ def profile():
         expenses=expenses,
         stats=stats,
         breakdown=breakdown,
+        date_from=date_from,
+        date_to=date_to,
+        presets=_date_presets(),
     )
 
 

@@ -11,22 +11,41 @@ and never execute SQL directly (see CLAUDE.md).
 from database.db import get_db
 
 
+def _date_where(user_id, date_from, date_to):
+    """Build a `WHERE` clause and matching params, scoped to `user_id`.
+
+    If `date_from` and `date_to` (ISO `YYYY-MM-DD`) are both given, the
+    clause also restricts results to that inclusive date range.
+    """
+    where = "user_id = ?"
+    params = [user_id]
+    if date_from and date_to:
+        where += " AND date BETWEEN ? AND ?"
+        params += [date_from, date_to]
+    return where, params
+
+
 # ------------------------------------------------------------------ #
 # Transaction history                                                  #
 # ------------------------------------------------------------------ #
-def get_recent_transactions(user_id, limit=10):
-    """Return `user_id`'s most recent expenses, newest first, capped at `limit`."""
+def get_recent_transactions(user_id, limit=10, date_from=None, date_to=None):
+    """Return `user_id`'s most recent expenses, newest first, capped at `limit`.
+
+    If `date_from` and `date_to` (ISO `YYYY-MM-DD`) are both given, results
+    are restricted to that inclusive date range.
+    """
+    where, params = _date_where(user_id, date_from, date_to)
+    params.append(limit)
+
     db = get_db()
     try:
         return db.execute(
-            """
-            SELECT id, amount, category, date, description
-            FROM expenses
-            WHERE user_id = ?
-            ORDER BY date DESC, id DESC
-            LIMIT ?
-            """,
-            (user_id, limit),
+            "SELECT id, amount, category, date, description "
+            "FROM expenses "
+            "WHERE " + where + " "
+            "ORDER BY date DESC, id DESC "
+            "LIMIT ?",
+            params,
         ).fetchall()
     finally:
         db.close()
@@ -35,19 +54,23 @@ def get_recent_transactions(user_id, limit=10):
 # ------------------------------------------------------------------ #
 # Category breakdown                                                   #
 # ------------------------------------------------------------------ #
-def get_category_breakdown(user_id):
-    """Return per-category totals and percentage share of total spending for user_id."""
+def get_category_breakdown(user_id, date_from=None, date_to=None):
+    """Return per-category totals and percentage share of total spending for user_id.
+
+    If `date_from` and `date_to` (ISO `YYYY-MM-DD`) are both given, totals are
+    restricted to that inclusive date range.
+    """
+    where, params = _date_where(user_id, date_from, date_to)
+
     db = get_db()
     try:
         rows = db.execute(
-            """
-            SELECT category, SUM(amount) AS total
-            FROM expenses
-            WHERE user_id = ?
-            GROUP BY category
-            ORDER BY total DESC
-            """,
-            (user_id,),
+            "SELECT category, SUM(amount) AS total "
+            "FROM expenses "
+            "WHERE " + where + " "
+            "GROUP BY category "
+            "ORDER BY total DESC",
+            params,
         ).fetchall()
     finally:
         db.close()
@@ -74,30 +97,32 @@ def get_category_breakdown(user_id):
 # ------------------------------------------------------------------ #
 # Summary stats                                                        #
 # ------------------------------------------------------------------ #
-def get_summary_stats(user_id):
-    """Return total spent, transaction count, and top category for user_id."""
+def get_summary_stats(user_id, date_from=None, date_to=None):
+    """Return total spent, transaction count, and top category for user_id.
+
+    If `date_from` and `date_to` (ISO `YYYY-MM-DD`) are both given, stats are
+    restricted to that inclusive date range.
+    """
+    where, params = _date_where(user_id, date_from, date_to)
+
     db = get_db()
     try:
         totals = db.execute(
-            """
-            SELECT COALESCE(SUM(amount), 0) AS total_spent,
-                   COUNT(*) AS transaction_count
-            FROM expenses
-            WHERE user_id = ?
-            """,
-            (user_id,),
+            "SELECT COALESCE(SUM(amount), 0) AS total_spent, "
+            "COUNT(*) AS transaction_count "
+            "FROM expenses "
+            "WHERE " + where,
+            params,
         ).fetchone()
 
         top = db.execute(
-            """
-            SELECT category
-            FROM expenses
-            WHERE user_id = ?
-            GROUP BY category
-            ORDER BY SUM(amount) DESC
-            LIMIT 1
-            """,
-            (user_id,),
+            "SELECT category "
+            "FROM expenses "
+            "WHERE " + where + " "
+            "GROUP BY category "
+            "ORDER BY SUM(amount) DESC "
+            "LIMIT 1",
+            params,
         ).fetchone()
 
         return {
