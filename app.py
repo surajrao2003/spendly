@@ -6,11 +6,15 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from database.db import (
     create_user,
     get_db,
-    get_recent_expenses_by_user,
     get_user_by_email,
     get_user_by_id,
     init_db,
     seed_db,
+)
+from database.queries import (
+    get_category_breakdown,
+    get_recent_transactions,
+    get_summary_stats,
 )
 
 app = Flask(__name__)
@@ -66,7 +70,7 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if "user_id" in session:
-        return redirect(url_for("landing"))
+        return redirect(url_for("profile"))
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -83,7 +87,7 @@ def login():
 
         session.clear()
         session["user_id"] = user["id"]
-        return redirect(url_for("landing"))
+        return redirect(url_for("profile"))
 
     return render_template("login.html")
 
@@ -114,8 +118,22 @@ def profile():
         session.clear()
         return redirect(url_for("login"))
 
-    expenses = get_recent_expenses_by_user(user["id"])
-    return render_template("profile.html", user=user, expenses=expenses)
+    # --- transaction history (Subagent 1) ---
+    expenses = get_recent_transactions(user["id"])
+
+    # --- summary stats (Subagent 2) ---
+    stats = get_summary_stats(user["id"])
+
+    # --- category breakdown (Subagent 3) ---
+    breakdown = get_category_breakdown(user["id"])
+
+    return render_template(
+        "profile.html",
+        user=user,
+        expenses=expenses,
+        stats=stats,
+        breakdown=breakdown,
+    )
 
 
 # ------------------------------------------------------------------ #
