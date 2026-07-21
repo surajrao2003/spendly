@@ -178,6 +178,18 @@ def get_user_by_email(email):
         db.close()
 
 
+def get_user_by_id(user_id):
+    """Return the user row matching `user_id`, or None if no such user exists."""
+    db = get_db()
+    try:
+        return db.execute(
+            "SELECT id, name, email, created_at FROM users WHERE id = ?",
+            (user_id,),
+        ).fetchone()
+    finally:
+        db.close()
+
+
 def create_user(name, email, password_hash):
     """Insert a new user and return its new id."""
     db = get_db()
@@ -188,5 +200,26 @@ def create_user(name, email, password_hash):
         )
         db.commit()
         return cursor.lastrowid
+    finally:
+        db.close()
+
+
+# ------------------------------------------------------------------ #
+# Expense queries                                                      #
+# ------------------------------------------------------------------ #
+def get_recent_expenses_by_user(user_id, limit=5):
+    """Return `user_id`'s most recent expenses, newest first, capped at `limit`."""
+    db = get_db()
+    try:
+        return db.execute(
+            """
+            SELECT id, amount, category, date, description
+            FROM expenses
+            WHERE user_id = ?
+            ORDER BY date DESC, id DESC
+            LIMIT ?
+            """,
+            (user_id, limit),
+        ).fetchall()
     finally:
         db.close()
