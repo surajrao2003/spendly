@@ -202,3 +202,21 @@ def create_user(name, email, password_hash):
         return cursor.lastrowid
     finally:
         db.close()
+
+
+# ------------------------------------------------------------------ #
+# Expense queries                                                      #
+# ------------------------------------------------------------------ #
+def add_expense(user_id, amount, category, date, description):
+    """Insert a new expense for user_id and return its new id."""
+    db = get_db()
+    try:
+        cursor = db.execute(
+            "INSERT INTO expenses (user_id, amount, category, date, description) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (user_id, amount, category, date, description),
+        )
+        db.commit()
+        return cursor.lastrowid
+    finally:
+        db.close()

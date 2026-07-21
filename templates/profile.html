@@ -24,6 +24,8 @@
                     <dd>{{ user["created_at"][:10] }}</dd>
                 </div>
             </dl>
+
+            <a href="{{ url_for('add_expense') }}" class="btn-primary profile-add-btn">+ Add Expense</a>
         </div>
 
         <div class="profile-card filter-card">
