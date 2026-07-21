@@ -95,7 +95,7 @@ pytest -s
 | `GET /privacy` | Implemented — renders `privacy.html` |
 | `GET /logout` | Implemented — clears session, redirects to landing |
 | `GET /profile` | Implemented — renders `profile.html` with live summary stats, recent transactions, and category breakdown from `database/queries.py`, all scoped to the logged-in user. Supports optional `date_from`/`date_to` query params (ISO `YYYY-MM-DD`) to filter all three sections to a date range, with quick presets (This Month / Last 3 Months / Last 6 Months / All Time) and a custom-range form. Invalid or malformed date params silently fall back to all-time data; a `date_from` after `date_to` flashes an error and falls back the same way. |
-| `GET /expenses/add` | Stub — Step 7 |
+| `GET/POST /expenses/add` | Implemented — renders `expenses_add.html` with an amount/category/date/description form (logged-in only). Validates amount (positive number via `_parse_amount`), category (must be in `CATEGORIES`), and date (`_parse_iso_date`) server-side; any failure re-renders the form with an inline error and the user's resubmitted values, it does not silently fall back. On success inserts via `database/db.py`'s `add_expense()` scoped to `session["user_id"]` and redirects to `/profile`. |
 | `GET /expenses/<id>/edit` | Stub — Step 8 |
 | `GET /expenses/<id>/delete` | Stub — Step 9 |
 
@@ -112,6 +112,8 @@ pytest -s
 - **Step 5 — Profile page backend routes**: `database/queries.py` wires the four profile-page cards to live data via `get_user_by_id`, `get_summary_stats`, `get_recent_transactions`, `get_category_breakdown`. All currency values render with the ₹ symbol.
 - **Step 6 — Date filter for profile page**: optional `date_from`/`date_to` query params on `GET /profile`, validated in `app.py` (`_parse_iso_date`, `_resolve_date_filter`, `_date_presets`) and threaded through all three query helpers in `database/queries.py` via a shared `_date_where()` clause builder. Adds a filter bar to `templates/profile.html` (styled in `static/css/profile.css`) and basic flash-message support in `templates/base.html`.
 
+- **Step 7 — Add expense**: `GET/POST /expenses/add` (logged-in only) renders a form for amount/category/date/description. `app.py` adds `_parse_amount()` alongside the existing `_parse_iso_date()` for server-side validation; unlike the profile page's date filter, invalid input here re-renders the form with a visible error (never a silent fallback), since this is a write path. `database/db.py` adds `add_expense(user_id, amount, category, date, description)`, mirroring `create_user`'s open/insert/commit/close-in-finally shape. Empty descriptions are stored as `NULL`. New template `templates/expenses_add.html` reuses the `auth-*`/`form-*` CSS classes from `register.html` — no new stylesheet.
+
 A `tests/` suite exists (pytest + pytest-flask) covering the Step 6 date filter, using a `conftest.py` fixture that monkeypatches `database.db.DB_PATH` to an isolated temp file per test.
 
 ---
@@ -126,4 +128,5 @@ A `tests/` suite exists (pytest + pytest-flask) covering the Step 6 date filter,
 - **FK enforcement is manual** — SQLite foreign keys are off by default; `get_db()` must run `PRAGMA foreign_keys = ON` on every connection
 - **Never build SQL query text with an f-string** — even for static clause fragments; use plain string concatenation (`"..." + where + "..."`) so nothing resembles unsafe interpolation, and keep all real values in the `params` list bound via `?` placeholders
 - **`database/db.py`'s `DB_PATH` points at a real on-disk file**, not `:memory:` — tests must monkeypatch `database.db.DB_PATH` to a temp file *before* importing `app` (see `tests/conftest.py`), since `app.py` calls `init_db()`/`seed_db()` at module import time
+- **When a `database/db.py` write-helper's natural name collides with an existing `app.py` view function name** (e.g. `add_expense`), import the helper under an alias (`add_expense as db_add_expense`) — never rename the view function, since its name is the Flask endpoint used by `url_for()`
 - The app runs on **port 5001**, not the Flask default 5000 — don't change this

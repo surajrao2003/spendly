@@ -5,6 +5,8 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from database.db import (
+    CATEGORIES,
+    add_expense as db_add_expense,
     create_user,
     get_db,
     get_user_by_email,
@@ -128,6 +130,19 @@ def _parse_iso_date(value):
     return value
 
 
+def _parse_amount(value):
+    """Return `value` as a positive float if well-formed, else None."""
+    if not value:
+        return None
+    try:
+        amount = float(value)
+    except ValueError:
+        return None
+    if amount <= 0:
+        return None
+    return amount
+
+
 def _date_presets():
     """Return the (start, end) ISO date pairs for the profile page's quick-select presets."""
     today = date.today()
@@ -192,9 +207,63 @@ def profile():
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
 
-@app.route("/expenses/add")
+@app.route("/expenses/add", methods=["GET", "POST"])
 def add_expense():
-    return "Add expense — coming in Step 7"
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    today = date.today().isoformat()
+
+    if request.method == "POST":
+        amount_raw = request.form.get("amount", "")
+        category = request.form.get("category", "")
+        expense_date = request.form.get("date", "")
+        description = request.form.get("description", "").strip()
+
+        form = {
+            "amount": amount_raw,
+            "category": category,
+            "date": expense_date,
+            "description": description,
+        }
+
+        amount = _parse_amount(amount_raw)
+        if amount is None:
+            return render_template(
+                "expenses_add.html",
+                error="Enter a valid amount greater than zero.",
+                categories=CATEGORIES,
+                today=today,
+                form=form,
+            )
+
+        if category not in CATEGORIES:
+            return render_template(
+                "expenses_add.html",
+                error="Select a valid category.",
+                categories=CATEGORIES,
+                today=today,
+                form=form,
+            )
+
+        if _parse_iso_date(expense_date) is None:
+            return render_template(
+                "expenses_add.html",
+                error="Enter a valid date.",
+                categories=CATEGORIES,
+                today=today,
+                form=form,
+            )
+
+        db_add_expense(session["user_id"], amount, category, expense_date, description or None)
+        return redirect(url_for("profile"))
+
+    return render_template(
+        "expenses_add.html",
+        categories=CATEGORIES,
+        today=today,
+        form={"amount": "", "category": "", "date": today, "description": ""},
+    )
 
 
 @app.route("/expenses/<int:id>/edit")
