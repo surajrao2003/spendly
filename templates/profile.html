@@ -8,92 +8,89 @@
 
 {% block content %}
 
-<section class="auth-section">
-    <div class="auth-container">
+<div class="dashboard">
 
-        <div class="profile-card">
+    <div class="profile-card dashboard-header">
+        <div class="dashboard-user">
             <div class="profile-avatar">{{ user["name"][0] | upper }}</div>
-            <h1 class="profile-name">{{ user["name"] }}</h1>
-            <p class="profile-email">{{ user["email"] }}</p>
-
-            <div class="profile-divider"></div>
-
-            <dl class="profile-meta">
-                <div class="profile-meta-row">
-                    <dt>Member since</dt>
-                    <dd>{{ user["created_at"][:10] }}</dd>
-                </div>
-            </dl>
-
-            <a href="{{ url_for('add_expense') }}" class="btn-primary profile-add-btn">+ Add Expense</a>
-        </div>
-
-        <div class="profile-card filter-card">
-            <h2 class="filter-title">Filter by Date</h2>
-
-            <div class="filter-presets">
-                <a href="{{ url_for('profile', date_from=presets['this_month'][0], date_to=presets['this_month'][1]) }}"
-                   class="filter-preset{% if date_from == presets['this_month'][0] and date_to == presets['this_month'][1] %} filter-preset-active{% endif %}">
-                    This Month
-                </a>
-                <a href="{{ url_for('profile', date_from=presets['last_3_months'][0], date_to=presets['last_3_months'][1]) }}"
-                   class="filter-preset{% if date_from == presets['last_3_months'][0] and date_to == presets['last_3_months'][1] %} filter-preset-active{% endif %}">
-                    Last 3 Months
-                </a>
-                <a href="{{ url_for('profile', date_from=presets['last_6_months'][0], date_to=presets['last_6_months'][1]) }}"
-                   class="filter-preset{% if date_from == presets['last_6_months'][0] and date_to == presets['last_6_months'][1] %} filter-preset-active{% endif %}">
-                    Last 6 Months
-                </a>
-                <a href="{{ url_for('profile') }}"
-                   class="filter-preset{% if not date_from and not date_to %} filter-preset-active{% endif %}">
-                    All Time
-                </a>
+            <div>
+                <h1 class="profile-name">{{ user["name"] }}</h1>
+                <p class="profile-email">{{ user["email"] }}</p>
+                <p class="profile-meta-inline">Member since {{ user["created_at"][:10] }}</p>
             </div>
-
-            <form method="GET" action="{{ url_for('profile') }}" class="filter-custom">
-                <div class="filter-custom-field">
-                    <label for="date_from">From</label>
-                    <input type="date" id="date_from" name="date_from" value="{{ date_from or '' }}">
-                </div>
-                <div class="filter-custom-field">
-                    <label for="date_to">To</label>
-                    <input type="date" id="date_to" name="date_to" value="{{ date_to or '' }}">
-                </div>
-                <button type="submit" class="filter-apply">Apply</button>
-            </form>
         </div>
 
-        <div class="profile-card stats-card">
-            <h2 class="stats-title">Summary</h2>
+        <a href="{{ url_for('add_expense') }}" class="btn-primary profile-add-btn">+ Add Expense</a>
+    </div>
 
-            <dl class="stats-grid">
-                <div class="stats-item">
-                    <dt>Total Spent</dt>
-                    <dd>₹{{ "%.2f"|format(stats["total_spent"]) }}</dd>
-                </div>
-                <div class="stats-item">
-                    <dt>Transactions</dt>
-                    <dd>{{ stats["transaction_count"] }}</dd>
-                </div>
-                <div class="stats-item">
-                    <dt>Top Category</dt>
-                    <dd>{{ stats["top_category"] }}</dd>
-                </div>
-            </dl>
+    <div class="profile-card filter-card">
+        <h2 class="filter-title">Filter by Date</h2>
+
+        <div class="filter-presets">
+            <a href="{{ url_for('profile') }}"
+               class="filter-preset{% if not date_from and not date_to %} filter-preset-active{% endif %}">
+                All Time
+            </a>
+            <a href="{{ url_for('profile', date_from=presets['this_month'][0], date_to=presets['this_month'][1]) }}"
+               class="filter-preset{% if date_from == presets['this_month'][0] and date_to == presets['this_month'][1] %} filter-preset-active{% endif %}">
+                This Month
+            </a>
+            <a href="{{ url_for('profile', date_from=presets['last_3_months'][0], date_to=presets['last_3_months'][1]) }}"
+               class="filter-preset{% if date_from == presets['last_3_months'][0] and date_to == presets['last_3_months'][1] %} filter-preset-active{% endif %}">
+                Last 3 Months
+            </a>
+            <a href="{{ url_for('profile', date_from=presets['last_6_months'][0], date_to=presets['last_6_months'][1]) }}"
+               class="filter-preset{% if date_from == presets['last_6_months'][0] and date_to == presets['last_6_months'][1] %} filter-preset-active{% endif %}">
+                Last 6 Months
+            </a>
         </div>
 
+        <form method="GET" action="{{ url_for('profile') }}" class="filter-custom">
+            <div class="filter-custom-field">
+                <label for="date_from">From</label>
+                <input type="date" id="date_from" name="date_from" value="{{ date_from or '' }}">
+            </div>
+            <div class="filter-custom-field">
+                <label for="date_to">To</label>
+                <input type="date" id="date_to" name="date_to" value="{{ date_to or '' }}">
+            </div>
+            <button type="submit" class="filter-apply">Apply</button>
+        </form>
+    </div>
+
+    <dl class="stats-grid">
+        <div class="stats-item">
+            <dt>Total Spent</dt>
+            <dd>₹{{ "%.2f"|format(stats["total_spent"]) }}</dd>
+        </div>
+        <div class="stats-item">
+            <dt>Transactions</dt>
+            <dd>{{ stats["transaction_count"] }}</dd>
+        </div>
+        <div class="stats-item">
+            <dt>Top Category</dt>
+            <dd>{{ stats["top_category"] }}</dd>
+        </div>
+    </dl>
+
+    <div class="dashboard-columns">
         <div class="profile-card transactions-card">
             <h2 class="transactions-title">Recent Transactions</h2>
 
             {% if expenses %}
+            <div class="tx-header">
+                <span>Date</span>
+                <span>Description</span>
+                <span>Category</span>
+                <span>Amount</span>
+                <span>Actions</span>
+            </div>
             <ul class="tx-list">
                 {% for expense in expenses %}
                 <li class="tx-row">
-                    <span class="tx-category">{{ expense["category"] }}</span>
-                    <div class="tx-info">
-                        <span class="tx-description">{{ expense["description"] or expense["category"] }}</span>
-                        <span class="tx-date">{{ expense["date"] }}</span>
-                    </div>
+                    <span class="tx-date">{{ expense["date"] }}</span>
+                    <span class="tx-description">{{ expense["description"] or expense["category"] }}</span>
+                    <span class="tx-category" data-category="{{ expense['category'] }}">{{ expense["category"] }}</span>
                     <span class="tx-amount">₹{{ "%.2f"|format(expense["amount"]) }}</span>
                     <a class="tx-edit" href="{{ url_for('edit_expense', id=expense['id']) }}">Edit</a>
                 </li>
@@ -105,7 +102,7 @@
         </div>
 
         <div class="profile-card breakdown-card">
-            <h2 class="breakdown-title">Category Breakdown</h2>
+            <h2 class="breakdown-title">By Category</h2>
 
             {% if breakdown %}
             <ul class="breakdown-list">
@@ -116,7 +113,7 @@
                         <span class="breakdown-amount">₹{{ "%.2f"|format(item["amount"]) }}</span>
                     </div>
                     <div class="breakdown-bar">
-                        <div class="breakdown-bar-fill" style="width: {{ item['pct'] }}%;"></div>
+                        <div class="breakdown-bar-fill" data-category="{{ item['name'] }}" style="width: {{ item['pct'] }}%;"></div>
                     </div>
                     <span class="breakdown-pct">{{ item["pct"] }}%</span>
                 </li>
@@ -126,8 +123,8 @@
             <p class="breakdown-empty">No spending yet.</p>
             {% endif %}
         </div>
-
     </div>
-</section>
+
+</div>
 
 {% endblock %}
