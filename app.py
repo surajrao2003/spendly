@@ -40,6 +40,7 @@ def inject_logged_in():
 # Routes                                                              #
 # ------------------------------------------------------------------ #
 
+
 @app.route("/")
 def landing():
     return render_template("landing.html")
@@ -207,6 +208,7 @@ def profile():
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
 
+
 @app.route("/expenses/add", methods=["GET", "POST"])
 def add_expense():
     if "user_id" not in session:
@@ -255,7 +257,9 @@ def add_expense():
                 form=form,
             )
 
-        db_add_expense(session["user_id"], amount, category, expense_date, description or None)
+        db_add_expense(
+            session["user_id"], amount, category, expense_date, description or None
+        )
         return redirect(url_for("profile"))
 
     return render_template(

@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "$stdin = [Console]::In.ReadToEnd(); $json = $stdin | ConvertFrom-Json; $cmd = $json.tool_input.command; if ($null -eq $cmd) { exit 0 }; $deletePattern = '(^|[\\s;&|])(rm|del|erase|Remove-Item|ri)\\b'; $targetPattern = 'expense_tracker\\.db'; $broadPattern = '(^|[\\s;&|])(rm|Remove-Item|ri)\\s+.*(-rf|-Recurse|-r\\b|\\*|\"\\.\"|\\s\\.\\s*$|\\s\\.\\s)'; if ($cmd -match $deletePattern -and ($cmd -match $targetPattern -or $cmd -match $broadPattern)) { $out = @{ hookSpecificOutput = @{ hookEventName = 'PreToolUse'; permissionDecision = 'deny'; permissionDecisionReason = 'BLOCKED: this command could delete expense_tracker.db, the app database. Delete it manually outside of a tool call if this is intentional.' } } | ConvertTo-Json -Compress -Depth 5; Write-Output $out }; exit 0"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport sys, json, subprocess\ndata = json.load(sys.stdin)\nfile = data.get('tool_input', {}).get('file_path', '')\nif file.endswith('.py'):\n    subprocess.run(['venv/Scripts/python.exe', '-m', 'black', '--quiet', file])\n\""
+          }
+        ]
+      }
+    ]
+  }
+}
