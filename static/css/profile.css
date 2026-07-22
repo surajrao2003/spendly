@@ -140,7 +140,13 @@
 /* Profile page — transaction row edit link                           */
 /* ------------------------------------------------------------------ */
 
-.tx-edit {
+.tx-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tx-edit,
+.tx-delete {
     padding: 0.35rem 0.85rem;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
@@ -155,4 +161,9 @@
 .tx-edit:hover {
     border-color: var(--ink);
     color: var(--ink);
+}
+
+.tx-delete:hover {
+    border-color: var(--danger);
+    color: var(--danger);
 }
