@@ -71,8 +71,7 @@ def init_db():
     """Create all tables if they don't already exist. Safe to call repeatedly."""
     db = get_db()
     try:
-        db.execute(
-            """
+        db.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id            INTEGER PRIMARY KEY AUTOINCREMENT,
                 name          TEXT NOT NULL,
@@ -80,10 +79,8 @@ def init_db():
                 password_hash TEXT NOT NULL,
                 created_at    TEXT NOT NULL DEFAULT (datetime('now'))
             )
-            """
-        )
-        db.execute(
-            """
+            """)
+        db.execute("""
             CREATE TABLE IF NOT EXISTS expenses (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id     INTEGER NOT NULL,
@@ -94,8 +91,7 @@ def init_db():
                 created_at  TEXT NOT NULL DEFAULT (datetime('now')),
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )
-            """
-        )
+            """)
         db.commit()
     finally:
         db.close()
@@ -218,5 +214,32 @@ def add_expense(user_id, amount, category, date, description):
         )
         db.commit()
         return cursor.lastrowid
+    finally:
+        db.close()
+
+
+def get_expense_by_id(expense_id, user_id):
+    """Return the expense row matching expense_id and owned by user_id, or None."""
+    db = get_db()
+    try:
+        return db.execute(
+            "SELECT id, user_id, amount, category, date, description "
+            "FROM expenses WHERE id = ? AND user_id = ?",
+            (expense_id, user_id),
+        ).fetchone()
+    finally:
+        db.close()
+
+
+def update_expense(expense_id, user_id, amount, category, date, description):
+    """Update an existing expense owned by user_id."""
+    db = get_db()
+    try:
+        db.execute(
+            "UPDATE expenses SET amount = ?, category = ?, date = ?, description = ? "
+            "WHERE id = ? AND user_id = ?",
+            (amount, category, date, description, expense_id, user_id),
+        )
+        db.commit()
     finally:
         db.close()
