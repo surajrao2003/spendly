@@ -624,7 +624,7 @@ a { color: inherit; text-decoration: none; }
 
 .tx-header {
     display: grid;
-    grid-template-columns: 100px 1fr 130px 110px 70px;
+    grid-template-columns: 100px 1fr 130px 110px 130px;
     gap: 1rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--border-soft);
@@ -646,7 +646,7 @@ a { color: inherit; text-decoration: none; }
 
 .tx-row {
     display: grid;
-    grid-template-columns: 100px 1fr 130px 110px 70px;
+    grid-template-columns: 100px 1fr 130px 110px 130px;
     align-items: center;
     gap: 1rem;
     padding: 0.85rem 0;
@@ -752,7 +752,7 @@ a { color: inherit; text-decoration: none; }
     .tx-row { grid-template-columns: 1fr auto; row-gap: 0.35rem; }
     .tx-date { grid-column: 1 / -1; order: -1; }
     .tx-amount { text-align: right; }
-    .tx-edit { justify-self: end; }
+    .tx-actions { justify-self: end; }
 }
 
 /* ------------------------------------------------------------------ */
