@@ -613,7 +613,7 @@ a { color: inherit; text-decoration: none; }
 
 .tx-row {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr auto auto;
     align-items: center;
     gap: 1rem;
     padding: 0.85rem 0;
@@ -719,6 +719,7 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 600px) {
     .tx-row { grid-template-columns: auto 1fr; row-gap: 0.35rem; }
     .tx-amount { grid-column: 2; text-align: right; }
+    .tx-edit { grid-column: 2; justify-self: end; }
 }
 
 /* ------------------------------------------------------------------ */

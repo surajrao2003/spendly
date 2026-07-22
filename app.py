@@ -1,7 +1,16 @@
 import os
 from datetime import date, datetime, timedelta
 
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import (
+    Flask,
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from database.db import (
@@ -9,10 +18,12 @@ from database.db import (
     add_expense as db_add_expense,
     create_user,
     get_db,
+    get_expense_by_id,
     get_user_by_email,
     get_user_by_id,
     init_db,
     seed_db,
+    update_expense as db_update_expense,
 )
 from database.queries import (
     get_category_breakdown,
@@ -270,9 +281,72 @@ def add_expense():
     )
 
 
-@app.route("/expenses/<int:id>/edit")
+@app.route("/expenses/<int:id>/edit", methods=["GET", "POST"])
 def edit_expense(id):
-    return "Edit expense — coming in Step 8"
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    expense = get_expense_by_id(id, session["user_id"])
+    if expense is None:
+        abort(404)
+
+    if request.method == "POST":
+        amount_raw = request.form.get("amount", "")
+        category = request.form.get("category", "")
+        expense_date = request.form.get("date", "")
+        description = request.form.get("description", "").strip()
+
+        form = {
+            "amount": amount_raw,
+            "category": category,
+            "date": expense_date,
+            "description": description,
+        }
+
+        amount = _parse_amount(amount_raw)
+        if amount is None:
+            return render_template(
+                "expenses_edit.html",
+                error="Enter a valid amount greater than zero.",
+                categories=CATEGORIES,
+                expense=expense,
+                form=form,
+            )
+
+        if category not in CATEGORIES:
+            return render_template(
+                "expenses_edit.html",
+                error="Select a valid category.",
+                categories=CATEGORIES,
+                expense=expense,
+                form=form,
+            )
+
+        if _parse_iso_date(expense_date) is None:
+            return render_template(
+                "expenses_edit.html",
+                error="Enter a valid date.",
+                categories=CATEGORIES,
+                expense=expense,
+                form=form,
+            )
+
+        db_update_expense(
+            id, session["user_id"], amount, category, expense_date, description or None
+        )
+        return redirect(url_for("profile"))
+
+    return render_template(
+        "expenses_edit.html",
+        categories=CATEGORIES,
+        expense=expense,
+        form={
+            "amount": expense["amount"],
+            "category": expense["category"],
+            "date": expense["date"],
+            "description": expense["description"] or "",
+        },
+    )
 
 
 @app.route("/expenses/<int:id>/delete")
